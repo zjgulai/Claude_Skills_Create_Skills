@@ -33,7 +33,7 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 
 ### 内容策略
 
-- 主文件 **&lt; 500 行**；采用**渐进式披露**：先加载 name/description，再在激活时加载 SKILL 正文，最后按需引用 reference/examples/scripts。
+- 主文件 **< 500 行**；采用**渐进式披露**：先加载 name/description，再在激活时加载 SKILL 正文，最后按需引用 reference/examples/scripts。
 - 引用仅一层深度；详细内容放在 `reference.md` 或 `examples.md`，在正文中链接说明「何时查看」。
 
 ### 写作模式
@@ -52,12 +52,12 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 | Claude Code | `.claude/skills/` | `~/.claude/skills/` |
 | Cursor | `.cursor/skills/` | `~/.cursor/skills/`（勿用 `~/.cursor/skills-cursor/`） |
 
-安装（从 GitHub）：`npx add-skill owner/repo` 或 `npx add-skill owner/repo --skill &lt;name&gt;`；或 `npx openskills install owner/repo`。仓库可为单 skill（根目录即含 `SKILL.md` 的目录）或多 skill（如 `skills/&lt;skill-name&gt;/`）。
+安装（从 GitHub）：`npx add-skill owner/repo` 或 `npx add-skill owner/repo --skill <name>`；或 `npx openskills install owner/repo`。仓库可为单 skill（根目录即含 `SKILL.md` 的目录）或多 skill（如 `skills/<skill-name>/`）。
 
 ## 写作原则
 
 1. **简洁**：仅补充 agent 尚不具备的上下文；每一段都值得占用 token。
-2. **主文件 &lt; 500 行**：详细内容放到 reference.md / examples.md，正文中链接。
+2. **主文件 < 500 行**：详细内容放到 reference.md / examples.md，正文中链接。
 3. **渐进式披露**：SKILL.md 写要点与导航；细节按需引用。
 4. **自由度与任务匹配**：多解任务用文字说明；有首选模式时用模板/伪代码；强一致性任务用具体脚本。
 
@@ -68,15 +68,15 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 
 ## 发布与安装
 
-- **GitHub 仓库**：单 skill 时仓库根即 skill 目录（含 `SKILL.md`）；多 skill 时使用 `skills/&lt;skill-name&gt;/`。确保 `name` 与安装后的目录名一致（kebab-case 推荐）。
-- **安装命令**：`npx add-skill &lt;owner&gt;/&lt;repo&gt;`（项目或加 `-g` 全局）；选装单个：`npx add-skill &lt;owner&gt;/&lt;repo&gt; --skill &lt;name&gt;`。Cursor 会检测并安装到 `.cursor/skills/` 或 `~/.cursor/skills/`。
+- **GitHub 仓库**：单 skill 时仓库根即 skill 目录（含 `SKILL.md`）；多 skill 时使用 `skills/<skill-name>/`。确保 `name` 与安装后的目录名一致（kebab-case 推荐）。
+- **安装命令**：`npx add-skill <owner>/<repo>`（项目或加 `-g` 全局）；选装单个：`npx add-skill <owner>/<repo> --skill <name>`。Cursor 会检测并安装到 `.cursor/skills/` 或 `~/.cursor/skills/`。
 - **兼容性说明**：`disable-model-invocation`、`context`、`agent`、`hooks`、动态注入 `!command` 等为 Claude Code 扩展；Cursor 等主要依赖 name/description 与正文，可选字段按环境支持情况使用。
 
 ## 发布前校验清单
 
 - [ ] `name` 与父目录名一致（kebab-case），1–64 字符，无连续连字符。
 - [ ] `description` 包含 WHAT 与 WHEN，第三人称，含触发词。
-- [ ] SKILL.md 正文 &lt; 500 行；引用仅一层深度。
+- [ ] SKILL.md 正文 < 500 行；引用仅一层深度。
 - [ ] 无 Windows 风格路径；术语一致；无时间敏感表述。
 - [ ] 若含脚本：依赖已说明，错误信息明确；路径使用 `scripts/` 形式。
 
