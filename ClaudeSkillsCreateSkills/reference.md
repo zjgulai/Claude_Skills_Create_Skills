@@ -1,6 +1,11 @@
 # Claude Skills 规范与路径速查
 
-本文档为 [SKILL.md](SKILL.md) 的补充，提供 frontmatter 与各 IDE 路径、安装命令的速查。规范来源： [Agent Skills Specification](https://agentskills.io/specification)（截至文档编写时）；Claude Code： [使用 skills 扩展 Claude](https://docs.claude.com/zh-CN/docs/claude-code/skills)。
+本文档为 [SKILL.md](SKILL.md) 的补充，提供 frontmatter 与各 IDE 路径、安装命令的速查。
+
+**规范来源**：
+- [Agent Skills Specification](https://agentskills.io/specification)
+- [Claude Code: 使用 skills 扩展 Claude](https://docs.claude.com/zh-CN/docs/claude-code/skills)
+- [anthropics/skills GitHub](https://github.com/anthropics/skills)
 
 ## Frontmatter 速查
 

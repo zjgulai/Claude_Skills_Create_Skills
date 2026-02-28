@@ -15,7 +15,26 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 
 ## 构建框架总览
 
-三层结构：**规范层**（Agent Skills 开放标准、SKILL.md 格式、目录与 frontmatter 约束）→ **指南层**（Claude Code 完整指南、渐进式披露、调用控制与 Hooks）→ **实战层**（写作原则与模式、反模式与校验、多 IDE 安装与发布）。先满足规范，再应用指南，最后落地实战与发布。
+三层结构：**规范层** → **指南层** → **实战层**。先满足规范，再应用指南，最后落地实战与发布。
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  实战层 (Practice)                                              │
+│  ├─ 写作原则与模式 (Template/Examples/Workflow/Feedback Loop)   │
+│  ├─ 反模式与校验 (validate-skill.sh)                            │
+│  └─ 多 IDE 安装与发布 (add-skill / openskills)                  │
+├─────────────────────────────────────────────────────────────────┤
+│  指南层 (Guide)                                                 │
+│  ├─ Claude Code 完整指南 (frontmatter/支持文件/hooks)          │
+│  ├─ 渐进式披露 (name/description → SKILL正文 → 引用文件)       │
+│  └─ 调用控制 (disable-model-invocation / context: fork)        │
+├─────────────────────────────────────────────────────────────────┤
+│  规范层 (Specification)                                         │
+│  ├─ Agent Skills 开放标准 (agentskills.io)                     │
+│  ├─ SKILL.md 格式 (YAML frontmatter + Markdown)                │
+│  └─ 目录与命名约束 (name 与目录一致、kebab-case)                │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## 核心组件清单
 
@@ -44,6 +63,24 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 - **Conditional Workflow**：按分支（如「新建 vs 编辑」）选择流程。
 - **Feedback Loop**：质量关键任务中先执行再校验，失败则修复后重跑。
 - **参考型 vs 任务型**：任务型（如部署、提交）可设 `disable-model-invocation: true` 仅手动调用；需隔离执行时可设 `context: fork`（Claude Code）。
+
+### 兼容性矩阵
+
+| 字段 | Agent Skills 规范 | Claude Code | Cursor |
+|------|-------------------|-------------|--------|
+| `name` | ✅ 必需 | ✅ 必需 | ✅ 必需 |
+| `description` | ✅ 强烈推荐 | ✅ 强烈推荐 | ✅ 强烈推荐 |
+| `license` | ✅ 可选 | ✅ 支持 | ✅ 支持 |
+| `compatibility` | ✅ 可选 | ✅ 支持 | ✅ 支持 |
+| `argument-hint` | ❌ | ✅ 支持 | ⚠️ 部分支持 |
+| `disable-model-invocation` | ❌ | ✅ 支持 | ⚠️ 部分支持 |
+| `user-invocable` | ❌ | ✅ 支持 | ⚠️ 部分支持 |
+| `allowed-tools` | ✅ 实验 | ✅ 支持 | ⚠️ 部分支持 |
+| `context: fork` | ❌ | ✅ 支持 | ❌ 不支持 |
+| `agent` | ❌ | ✅ 支持 | ❌ 不支持 |
+| `hooks` | ❌ | ✅ 支持 | ⚠️ 部分支持 |
+
+> ✅ = 完全支持 | ⚠️ = 部分支持/忽略 | ❌ = 不支持/非规范字段
 
 ### 多 IDE 与发布
 
@@ -89,6 +126,83 @@ description: Guides creation of Agent Skills compliant with the open standard fo
 name: your-skill-name
 description: One sentence on what it does. Use when [trigger scenario or keywords].
 ---
+```
+
+## 完整 SKILL.md 章节模板
+
+```markdown
+---
+name: your-skill-name
+description: [WHAT: 做什么] + [WHEN: 何时用] + [触发词]。第三人称。
+argument-hint: [可选: 参数提示，如 [filename] [format]]
+disable-model-invocation: [可选: true，仅手动调用]
+---
+
+# Skill 标题
+
+一句话概述本 Skill 的用途。
+
+## 何时使用
+
+- 触发场景 1
+- 触发场景 2
+
+## 核心内容
+
+### 组件/概念 1
+说明...
+
+### 组件/概念 2
+说明...
+
+## 工作流（如适用）
+
+1. 步骤 1
+2. 步骤 2
+3. 步骤 3
+
+## 模式与反模式
+
+- **推荐**：...
+- **避免**：...
+
+## 校验清单
+
+- [ ] 检查项 1
+- [ ] 检查项 2
+
+## 附加资源
+
+- 详细参考：见 [reference.md](reference.md)
+- 示例：见 [examples.md](examples.md)
+```
+
+## 四阶段工作流
+
+创建 Skill 时的推荐流程：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  阶段 1: 规划 (Plan)                                            │
+│  ├─ 确定 Skill 名称和目录结构                                    │
+│  ├─ 编写 description（WHAT + WHEN + 触发词）                    │
+│  └─ 列出核心章节大纲                                            │
+├─────────────────────────────────────────────────────────────────┤
+│  阶段 2: 编写 (Write)                                           │
+│  ├─ 创建 SKILL.md，填充 frontmatter                             │
+│  ├─ 按模板编写正文（保持 < 500 行）                              │
+│  └─ 创建 reference.md / examples.md（如需）                     │
+├─────────────────────────────────────────────────────────────────┤
+│  阶段 3: 校验 (Validate)                                        │
+│  ├─ 运行 scripts/validate-skill.sh                              │
+│  ├─ 检查 name 与目录名一致                                      │
+│  └─ 检查 description 含 WHAT/WHEN                               │
+├─────────────────────────────────────────────────────────────────┤
+│  阶段 4: 发布 (Publish)                                         │
+│  ├─ 推送到 GitHub                                               │
+│  ├─ 测试安装：npx add-skill owner/repo --skill name             │
+│  └─ 验证 agent 能通过触发词发现                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## 附加资源
