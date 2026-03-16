@@ -1,166 +1,294 @@
-# Skill 示例（完整 frontmatter + 简短正文）
+# Examples: Good vs Bad, Templates, and Pressure Tests
 
-以下为符合 Agent Skills 规范、适用于 Claude Code / Cursor 的示例，可直接作为新 Skill 的起点。
+## 1) Complete Reusable Skill Example
 
----
+Directory:
 
-## 示例 0：从原始内容创建 Skill（完整转换演示）
-
-**原始内容**（假设用户提供）：
-```
-Git 提交规范
-
-我们团队使用约定式提交格式：
-- feat: 新功能
-- fix: 修复 bug
-- docs: 文档变更
-- refactor: 重构
-- test: 测试相关
-
-提交信息格式：<type>(<scope>): <subject>
-
-示例：
-- feat(auth): add OAuth2 login
-- fix(api): resolve timeout issue
-
-不要使用：
-- 模糊的提交信息如 "fix bug" 或 "update"
-- 不带类型前缀的提交
+```text
+release-readiness/
+├── SKILL.md
+├── reference.md
+└── examples.md
 ```
 
-**转换后的 SKILL.md**：
-
-```yaml
----
-name: git-commit-conventions
-description: Enforce conventional commit format for git commits. Use when committing changes, writing commit messages, or when the user mentions commit format, conventional commits, or commit conventions. 涵盖约定式提交、提交规范.
----
-```
+`SKILL.md`:
 
 ```markdown
-# Git Commit Conventions
-
-本 Skill 定义团队的 Git 提交信息规范。
-
-## 何时使用
-
-- 执行 git commit 时
-- 用户询问提交格式或规范时
-- 审查提交信息时
-
-## 提交类型
-
-| 类型 | 用途 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | 修复 bug |
-| `docs` | 文档变更 |
-| `refactor` | 重构（不修复 bug 也不添加功能） |
-| `test` | 测试相关 |
-
-## 格式规范
-
-```
-<type>(<scope>): <subject>
-```
-
-- `type`：必填，从上表选择
-- `scope`：可选，影响范围（如 auth, api, ui）
-- `subject`：必填，简短描述（ imperative, lowercase, no period）
-
-## 示例
-
-```
-feat(auth): add OAuth2 login support
-fix(api): resolve timeout issue on large requests
-docs(readme): update installation instructions
-```
-
-## 模式与反模式
-
-- **推荐**：`feat(auth): add OAuth2 login`、`fix: resolve null pointer`
-- **避免**：`fix bug`、`update`、`WIP`、无类型前缀的提交
-```
-
-**转换要点说明**：
-1. **内容分类**：编码规范 → 参考型 Skill
-2. **触发词提取**：commit, conventional commits, 提交规范
-3. **表格化**：将列表转为表格，更清晰
-4. **格式模板**：用代码块展示格式
-5. **反模式**：从"不要使用"部分提取
-
+---
+name: release-readiness
+description: Evaluate whether a feature is ready for release. Use when preparing a release, final QA signoff, or when the user asks for go/no-go checks.
 ---
 
-## 示例 1：参考型 Skill（自动发现 + 手动调用）
+# Release Readiness
+
+## When to Use
+- Before merging high-impact PRs
+- Before production deployment
+
+## Workflow
+1. Verify tests and critical checks
+2. Confirm rollback strategy
+3. Validate monitoring and alerts
+4. Produce go/no-go conclusion
+
+## Checklist
+- [ ] Critical tests passed
+- [ ] Rollback command verified
+- [ ] Observability checks defined
+- [ ] Risk owner assigned
+```
+
+## 2) Description Good vs Bad (5 groups)
+
+### Group A: Workflow leakage
+
+Bad:
 
 ```yaml
----
-name: api-conventions
-description: Apply REST API design conventions for this codebase. Use when writing or reviewing API endpoints, routes, or when the user mentions API style, error format, or request validation.
----
-
-# API Conventions
-
-When writing API endpoints:
-
-1. Use RESTful naming: plural nouns, HTTP verbs for actions.
-2. Return consistent error format: `{ "error": { "code": "...", "message": "..." } }`.
-3. Validate request body with schema; return 400 with validation details on failure.
-4. Document in OpenAPI/Swagger where available.
-
-See [reference.md](reference.md) for full endpoint checklist.
+description: Build skills in four phases: plan, write, validate, publish.
 ```
 
----
-
-## 示例 2：任务型 Skill（仅手动调用）
+Good:
 
 ```yaml
----
-name: deploy-staging
-description: Deploy the application to staging. Use when the user explicitly asks to deploy to staging or run staging deployment.
-disable-model-invocation: true
----
-
-# Deploy to Staging
-
-1. Run the test suite: `npm test`
-2. Build: `npm run build`
-3. Deploy to staging target: `./scripts/deploy.sh staging`
-4. Verify health: `curl https://staging.example.com/health`
-
-Do not proceed if tests or build fail.
+description: Use when creating or revising SKILL.md files, frontmatter, and publishing workflows.
 ```
 
----
+### Group B: First-person wording
 
-## 示例 3：带参数的 Skill
+Bad:
 
 ```yaml
----
-name: migrate-component
-description: Migrate a UI component from one framework to another while preserving behavior and tests. Use when the user asks to migrate a component, convert React to Vue, or port a component.
-argument-hint: [ComponentName] [SourceFramework] [TargetFramework]
----
-
-# Component Migration
-
-Migrate the **$0** component from **$1** to **$2**.
-
-1. List existing props, events, and slots (or equivalent).
-2. Recreate the same API in the target framework.
-3. Port or rewrite tests; keep coverage equivalent.
-4. Update any parent imports and docs.
-
-Preserve accessibility and responsive behavior. Prefer framework idioms for the target.
+description: I can help you write skills.
 ```
 
-调用示例：`/migrate-component Button React Vue` → $0=Button, $1=React, $2=Vue。
+Good:
 
+```yaml
+description: Use when users need standards-compliant skill authoring for Claude Code or Cursor.
+```
+
+### Group C: Missing trigger terms
+
+Bad:
+
+```yaml
+description: Handles documentation quality.
+```
+
+Good:
+
+```yaml
+description: Improve SKILL.md quality. Use when users mention skill authoring, frontmatter, or add-skill installation.
+```
+
+### Group D: Too broad
+
+Bad:
+
+```yaml
+description: Use for anything related to development.
+```
+
+Good:
+
+```yaml
+description: Use when converting process docs into reusable Agent Skills with clear triggers and validation checks.
+```
+
+### Group E: No WHAT/WHEN structure
+
+Bad:
+
+```yaml
+description: Skill creation helper.
+```
+
+Good:
+
+```yaml
+description: Use when users ask to create skills from docs, define frontmatter, or publish skill repos.
+```
+
+
+### Group F: Shortcut failure mode (real)
+
+Bad:
+
+```yaml
+description: Use when creating skills in 4 phases (plan, write, test, publish).
+```
+
+Risk:
+
+```text
+Agent may follow this short summary and skip detailed rules in SKILL.md.
+```
+
+Good:
+
+```yaml
+description: Use when users ask to create/review/publish skills or troubleshoot skill authoring quality.
+```
+
+## 3) Token Efficiency Good vs Bad
+
+### Case 1: Verbose background
+
+Bad:
+
+```markdown
+PDF files are a common format used for many years and have many internal structures...
+```
+
+Good:
+
+```markdown
+Use `pdfplumber` for text extraction. API details in `reference.md`.
+```
+
+### Case 2: Repeated examples
+
+Bad:
+
+```markdown
+Example 1 ...
+Example 2 ...
+Example 3 ...
+Example 4 ...
+Example 5 ...
+```
+
+Good:
+
+```markdown
+Provide one strong canonical example and one edge case.
+```
+
+### Case 3: Repeating other skills
+
+Bad:
+
+```markdown
+Reprint the whole TDD methodology inline.
+```
+
+Good:
+
+```markdown
+Reference the TDD skill and include only this skill-specific constraints.
+```
+
+## 4) Pattern Good vs Bad
+
+### Template Pattern
+
+Bad:
+
+```markdown
+Write your report clearly.
+```
+
+Good:
+
+```markdown
+## Report Template
+1) Executive Summary
+2) Evidence
+3) Actions
+```
+
+### Workflow Pattern
+
+Bad:
+
+```markdown
+Do analysis and then write output.
+```
+
+Good:
+
+```markdown
+1. Gather context
+2. Define scope
+3. Draft output
+4. Validate against checklist
+```
+
+### Feedback Loop Pattern
+
+Bad:
+
+```markdown
+Write once and finalize.
+```
+
+Good:
+
+```markdown
+Draft -> Validate -> Fix -> Re-test -> Finalize
+```
+
+## 5) Pressure Test Templates (Iron Law)
+
+### RED Baseline Prompt
+
+```text
+You are asked to create a new Skill from this process doc.
+Constraints are intentionally incomplete.
+Deliver directly without asking follow-up questions.
+```
+
+Observe:
+- 是否跳过触发词设计
+- 是否把 workflow 写进 description
+- 是否缺失校验清单
+
+### GREEN Verification Prompt
+
+```text
+Now follow the updated skill-authoring guide and create the same Skill.
+You must include: trigger-only description, <500 line main file, and validation checklist.
+```
+
+Observe:
+- 是否遵守触发条件写法
+- 是否分层到 reference/examples
+- 是否形成可执行检查项
+
+### REFACTOR Stress Prompt
+
+```text
+Time pressure: deliver in one pass, no extra files allowed.
+Also include advanced fields and compatibility notes.
+```
+
+Expected behavior:
+- 不因压力牺牲主文件简洁性
+- 将重型内容迁移到 reference.md
+- 保留发布前验证环节
+
+## 6) Quick Output Template
+
+```markdown
+---
+name: <skill-name>
+description: Use when <trigger conditions>. 触发词：<keywords>.
 ---
 
-## 使用建议
+# <Skill Title>
 
-- **参考型**：不加 `disable-model-invocation`，description 写清 WHEN，便于 agent 自动匹配。
-- **任务型（有副作用）**：加 `disable-model-invocation: true`，避免 agent 自动执行部署、发送等操作。
-- **参数**：在正文中用 `$0`、`$1` 或 `$ARGUMENTS[0]` 等引用；`argument-hint` 帮助用户知道如何传参。
+## When to Use
+- ...
+
+## Workflow
+1. ...
+2. ...
+
+## Checklist
+- [ ] ...
+
+## Resources
+- [reference.md](reference.md)
+- [examples.md](examples.md)
+```

@@ -1,67 +1,138 @@
-# Claude Skills 规范与路径速查
+# Reference: Agent Skills Spec, Compatibility, and Publishing
 
-本文档为 [SKILL.md](SKILL.md) 的补充，提供 frontmatter 与各 IDE 路径、安装命令的速查。
+本文件是 `SKILL.md` 的重型参考，保留完整矩阵与详细速查。
 
-**规范来源**：
-- [Agent Skills Specification](https://agentskills.io/specification)
-- [Claude Code: 使用 skills 扩展 Claude](https://docs.claude.com/zh-CN/docs/claude-code/skills)
-- [anthropics/skills GitHub](https://github.com/anthropics/skills)
+## 1) Frontmatter Fields (Full)
 
-## Frontmatter 速查
+### Required / 推荐必填
 
-### 必需（Agent Skills 开放标准）
+| Field | Constraint | Notes |
+|------|------------|-------|
+| `name` | 1-64 chars, lowercase letters/numbers/hyphens | 建议与目录名一致，避免 `--` |
+| `description` | 1-1024 chars | 第三人称；写 WHAT + WHEN；不要写 workflow 摘要 |
 
-| 字段 | 约束 | 说明 |
-|------|------|------|
-| `name` | 1–64 字符，仅 a-z、0-9、`-`；与父目录名一致；不以 `-` 开头/结尾；无 `--` | 唯一标识，对应 `/slash-command` |
-| `description` | 1–1024 字符，非空 | 做什么 + 何时用；含触发词，第三人称 |
+### Optional (Agent Skills Spec)
 
-### 可选（开放标准）
+| Field | Notes |
+|------|-------|
+| `license` | 许可证信息 |
+| `compatibility` | 运行环境约束 |
+| `metadata` | 扩展键值 |
+| `allowed-tools` | 实验字段，按实现支持 |
 
-| 字段 | 约束 | 说明 |
-|------|------|------|
-| `license` | 建议简短 | 许可证名称或捆绑的 LICENSE 文件引用 |
-| `compatibility` | 1–500 字符 | 环境要求（产品、系统依赖、网络等） |
-| `metadata` | 键值对 | 任意扩展元数据 |
-| `allowed-tools` | 空格分隔列表 | 实验性；预批准工具 |
+### Optional (Claude Code Extensions)
 
-### 可选（Claude Code 扩展，部分在 Cursor 中可用）
+| Field | Purpose | Cursor Support |
+|------|---------|----------------|
+| `argument-hint` | 参数提示 | Partial |
+| `disable-model-invocation` | 禁止自动调用，仅手动 | Partial |
+| `user-invocable` | 是否在 `/` 菜单显示 | Partial |
+| `allowed-tools` | skill 生命周期内工具白名单 | Partial |
+| `context: fork` | 在子代理中运行 | No |
+| `agent` | 指定子代理类型 | No |
+| `hooks` | skill 生命周期钩子 | Partial |
 
-| 字段 | 说明 |
-|------|------|
-| `argument-hint` | 自动完成时显示的参数提示，如 `[filename] [format]` |
-| `disable-model-invocation` | `true` 时仅用户可调用，不自动加载 |
-| `user-invocable` | `false` 时从 `/` 菜单隐藏，仅模型可调用 |
-| `allowed-tools` | 该 skill 激活时无需逐次批准的工具 |
-| `context` | `fork` 时在 subagent 中运行 |
-| `agent` | 与 `context: fork` 同用时指定 subagent 类型 |
-| `hooks` | 限定于此 skill 生命周期的 hooks |
+## 2) Compatibility Matrix
 
-## 各 IDE 路径
+| Field | Agent Skills Spec | Claude Code | Cursor |
+|------|--------------------|-------------|--------|
+| `name` | Required | Required | Required |
+| `description` | Recommended | Recommended | Recommended |
+| `license` | Optional | Supported | Supported |
+| `compatibility` | Optional | Supported | Supported |
+| `metadata` | Optional | Supported | Supported |
+| `allowed-tools` | Experimental | Supported | Partial |
+| `argument-hint` | N/A | Supported | Partial |
+| `disable-model-invocation` | N/A | Supported | Partial |
+| `user-invocable` | N/A | Supported | Partial |
+| `context: fork` | N/A | Supported | Not supported |
+| `agent` | N/A | Supported | Not supported |
+| `hooks` | N/A | Supported | Partial |
 
-| 环境 | 项目级 | 用户级 |
-|------|--------|--------|
-| **Claude Code** | `.claude/skills/<skill-name>/` | `~/.claude/skills/<skill-name>/` |
-| **Cursor** | `.cursor/skills/<skill-name>/` | `~/.cursor/skills/<skill-name>/` |
-| OpenCode | `.opencode/skill/` | `~/.config/opencode/skill/` |
-| Codex | `.codex/skills/` | `~/.codex/skills/` |
+## 3) Skill Paths by IDE
 
-注意：Cursor 内置 skill 目录 `~/.cursor/skills-cursor/` 仅供系统使用，不要将自定义 skill 放在该目录。
+| IDE | Project Scope | User Scope |
+|-----|----------------|------------|
+| Claude Code | `.claude/skills/<skill-name>/` | `~/.claude/skills/<skill-name>/` |
+| Cursor | `.cursor/skills/<skill-name>/` | `~/.cursor/skills/<skill-name>/` |
+| Codex | `.codex/skills/<skill-name>/` | `~/.codex/skills/<skill-name>/` |
+| OpenCode | `.opencode/skill/<skill-name>/` | `~/.config/opencode/skill/<skill-name>/` |
 
-## 安装命令
+注意：`~/.cursor/skills-cursor/` 是 Cursor 内置目录，不用于自定义 Skill。
 
-- **add-skill**（推荐，多 agent 自动检测）  
-  - 安装整个仓库：`npx add-skill <owner>/<repo>`  
-  - 安装单个 skill：`npx add-skill <owner>/<repo> --skill <skill-name>`  
-  - 全局：`npx add-skill <owner>/<repo> -g`  
-  - 非交互（CI）：`npx add-skill <owner>/<repo> --skill <name> -g -y`
+## 4) Publishing and Installation
 
-- **openskills**  
-  - `npx openskills install <owner>/<repo>`  
-  - 默认可能安装到 `./.agent/skills` 或 `./.claude/skills`；使用 `--global` 安装到用户目录时多为 `~/.claude/skills` 或 `~/.agent/skills`（以工具文档为准）。
+### Repository Layout Options
 
-安装后，在 Cursor 中 skill 会出现在 `.cursor/skills/` 或 `~/.cursor/skills/`，可通过 `/skill-name` 或由 agent 根据 description 自动匹配调用。
+Single-skill repo:
 
-## 目录名与 name 一致说明
+```text
+repo-root/
+└── SKILL.md
+```
 
-Agent Skills 规范要求 `name` 与**父目录名**一致。若使用 kebab-case 的 `name`（如 `claude-skills-create-skills`），建议父目录也命名为 `claude-skills-create-skills`，以便通过 [skills-ref validate](https://github.com/agentskills/agentskills/tree/main/skills-ref) 等校验。仓库展示名可仍用 `ClaudeSkillsCreateSkills`，安装时复制到的目录名以实际工具行为为准。
+Multi-skill repo:
+
+```text
+repo-root/
+└── skills/
+    ├── skill-a/
+    │   └── SKILL.md
+    └── skill-b/
+        └── SKILL.md
+```
+
+### Install Commands
+
+```bash
+# Install whole repo
+npx add-skill <owner>/<repo>
+
+# Install a specific skill
+npx add-skill <owner>/<repo> --skill <skill-name>
+
+# Global install
+npx add-skill <owner>/<repo> -g
+
+# Alternative installer
+npx openskills install <owner>/<repo>
+```
+
+### Publish Checklist
+
+- `name` 合法、可检索、与目录命名策略一致。
+- `description` 聚焦触发条件，不描述步骤流程。
+- 主文件 < 500 行，引用深度一层。
+- 通过 RED -> GREEN -> REFACTOR。
+- 完成安装验证（至少本地一次）。
+
+## 5) Content Extraction Mapping
+
+### Type Mapping
+
+| Input Content | Recommended Skill Type | Extra Field Suggestion |
+|--------------|------------------------|------------------------|
+| Coding guideline | `Reference` | none |
+| Deployment process | `Technique` | `disable-model-invocation: true` |
+| Migration procedure | `Technique` | `argument-hint` |
+| Root cause playbook | `Pattern` + `Technique` | none |
+| API handbook | `Reference` | examples in `examples.md` |
+
+### Extraction Table
+
+| Extract | Ask This | Place Into |
+|--------|----------|------------|
+| Core objective | 解决什么问题？ | overview + description WHAT |
+| Trigger scenarios | 何时触发？ | description WHEN + usage section |
+| Required constraints | 哪些不可违反？ | checklist / guardrails |
+| Workflow steps | 最小执行路径？ | workflow section |
+| Common mistakes | 常见错误？ | anti-pattern section |
+| Evidence/examples | 如何判断好坏？ | examples.md |
+
+## 6) CSO Quick Rules
+
+- Description starts with `Use when...`
+- Include search terms users will actually say
+- Do not summarize the workflow in description
+- Keep high-frequency skills concise
+- Keep terminology consistent
